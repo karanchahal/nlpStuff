@@ -6,7 +6,7 @@
 
 # What is chunking?
 
-# you might have mnay nouns in a sentence ,that is we have a sentence and there are a lot of things in a sentence
+# you might have many nouns in a sentence ,that is we have a sentence and there are a lot of things in a sentence
 # no nessesarily talking about eh same topic
 
 ## putting same code as speech tagging
