@@ -6,6 +6,13 @@ import nltk;
 import random;
 from nltk.corpus import movie_reviews
 import pickle
+from nltk.classify.scikitlearn import SklearnClassifier
+# A wrappper for using scikit learn classifier machine learning algorithms
+from sklearn.linear_model import LogisticRegression, SGDClassifier
+from sklearn.svm import SVC, LinearSVC, NuSVC
+from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
+
+
 # words are tuples which are also "features"
 
 documents = [(list(movie_reviews.words(fileid)),category)
@@ -51,11 +58,49 @@ classifier_f = open("naivebayes.pickle","rb")
 classifier = pickle.load(classifier_f) # Serialization !!  WOW yeas
 
 
-print ("Naive Bayes Algo accuracy percent:", (nltk.classify.accuracy(classifier,testing_set))*100)
-classifier.show_most_informative_features(15)
+print (" Original Naive Bayes Algo accuracy percent:", (nltk.classify.accuracy(classifier,testing_set))*100)
+#classifier.show_most_informative_features(15)
+
 
 # Saving a python object with PICKLE (serialization)
 
 #save_classifier = open("naivebayes.pickle","wb") ## wb -write bytes
 #pickle.dump(classifier,save_classifier)
 #save_classifier.close()
+
+MNB_classifier = SklearnClassifier(MultinomialNB()) # making a new classifier
+MNB_classifier.train(training_set)
+print (" MultinomialNB Classifier accuracy percent:", (nltk.classify.accuracy(MNB_classifier,testing_set))*100)
+
+
+# Gausian and BernouslliNB
+"""
+GaussianNB_classifier = SklearnClassifier(GaussianNB()) # making a new classifier
+GaussianNB_classifier.train(training_set)
+print (" GaussianNB Classifier accuracy percent:", (nltk.classify.accuracy(MNB_classifier,testing_set))*100)
+"""
+
+LogisticRegression_classifier = SklearnClassifier(LogisticRegression()) # making a new classifier
+LogisticRegression_classifier.train(training_set)
+print (" LogisticRegression Classifier accuracy percent:", (nltk.classify.accuracy(LogisticRegression_classifier,testing_set))*100)
+
+## LOgistic Regression,SVC,LinearSVC,NuSVC and SGDClassifier
+
+SGDClassifier_classifier = SklearnClassifier(SGDClassifier()) # making a new classifier
+SGDClassifier_classifier.train(training_set)
+print (" SGDClassifier Classifier accuracy percent:", (nltk.classify.accuracy(SGDClassifier_classifier,testing_set))*100)
+
+
+SVC_classifier = SklearnClassifier(SVC()) # making a new classifier
+SVC_classifier.train(training_set)
+print (" SVC Classifier accuracy percent:", (nltk.classify.accuracy(SVC_classifier,testing_set))*100)
+
+
+LinearSVC_classifier = SklearnClassifier(LinearSVC()) # making a new classifier
+LinearSVC_classifier.train(training_set)
+print (" LinearSVC Classifier accuracy percent:", (nltk.classify.accuracy(LinearSVC_classifier,testing_set))*100)
+
+
+NuSVC_classifier = SklearnClassifier(NuSVC()) # making a new classifier
+NuSVC_classifier.train(training_set)
+print (" NuSVC Classifier accuracy percent:", (nltk.classify.accuracy(NuSVC_classifier,testing_set))*100)
