@@ -2,6 +2,9 @@
 # spam or not spam classification problem
 # machine learning?
 
+#use text classification on any binary data set , one or the other
+
+
 import nltk;
 import random;
 from nltk.corpus import movie_reviews
@@ -11,9 +14,10 @@ from nltk.classify.scikitlearn import SklearnClassifier
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.svm import SVC, LinearSVC, NuSVC
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
-
+from nltk.tokenize import word_tokenize
 from nltk.classify import ClassifierI # inherit from nltk classifier
 from statistics import mode # for our confidence score
+from unidecode import unidecode
 
 
 
@@ -39,34 +43,8 @@ class VoteClassifier(ClassifierI):
         return conf
 
 
-
-
-
-
-
-# words are tuples which are also "features"
-
-
-documents = [(list(movie_reviews.words(fileid)),category)
-            for category in  movie_reviews.categories()
-            for fileid in movie_reviews.fileids(category)]
-
-random.shuffle(documents)
-
-all_words = []
-for w in movie_reviews.words():
-    all_words.append(w.lower())
-
-all_words = nltk.FreqDist(all_words) # ordered from most common to least common word
-
-#print(all_words.most_common(15))
-#print(all_words["stupid"])
-
-word_features = list(all_words.keys())[:3000] ## taking top 3000 words
-# so that we can train our classifier algo against these words
-
 def find_features(document):
-    words = set(document)
+    words = word_tokenize(document)
     features = {}
     for w in word_features:
         features[w] = (w in words)
@@ -74,73 +52,82 @@ def find_features(document):
     return features
 
 
-#print((find_features(movie_reviews.words('neg/cv000_29416.txt'))))
+short_pos = open("datasets/pos.txt","r").read()
+short_neg = open("datasets/neg.txt","r").read()
+documents = []
+
+for r in short_pos.split('\n'):
+    documents.append( (r,"pos") )
+
+for r in short_neg.split('\n'):
+    documents.append( (r,"neg") )
+
+all_words = []
+short_pos_words = word_tokenize(short_pos)
+short_neg_words = word_tokenize(short_neg)
+
+for w in short_pos_words:
+    all_words.append(w.lower())
+
+for w in short_neg_words:
+    all_words.append(w.lower())
+
+all_words = nltk.FreqDist(all_words)
+word_features = list(all_words.keys())[:5000]
 
 featuresets = [(find_features(rev),category) for (rev,category) in documents]
+random.shuffle(featuresets)
 
-training_set = featuresets[:1900]
-testing_set = featuresets[1900:]
-
-# Naive Bayes Algorithm!!
-# posterior (liklihood) = (prior occurence x liklihood ) / evidence
-
-#classifier = nltk.NaiveBayesClassifier.train(training_set)
-
-classifier_f = open("naivebayes.pickle","rb")
-classifier = pickle.load(classifier_f) # Serialization !!  WOW yeas
+training_set = featuresets[:10000]
+testing_set = featuresets[10000:]
 
 
+""" Loading Pickled Content !!! """
+
+
+
+load_classifier = open("pickle/naivebayes.pickle","rb") ## wb -write bytes
+classifier = pickle.load(load_classifier)
 print (" Original Naive Bayes Algo accuracy percent:", (nltk.classify.accuracy(classifier,testing_set))*100)
-#classifier.show_most_informative_features(15)
 
 
-# Saving a python object with PICKLE (serialization)
-
-#save_classifier = open("naivebayes.pickle","wb") ## wb -write bytes
-#pickle.dump(classifier,save_classifier)
-#save_classifier.close()
-
-MNB_classifier = SklearnClassifier(MultinomialNB()) # making a new classifier
-MNB_classifier.train(training_set)
+load_classifier = open("pickle/MNB.pickle","rb") ## wb -write bytes
+MNB_classifier = pickle.load(load_classifier)
 print (" MultinomialNB Classifier accuracy percent:", (nltk.classify.accuracy(MNB_classifier,testing_set))*100)
 
+#BernoulliNB
 
-# Gausian and BernouslliNB
-BernoulliNB_classifier = SklearnClassifier(BernoulliNB()) # making a new classifier
-BernoulliNB_classifier.train(training_set)
+load_classifier = open("pickle/BernoulliNB.pickle","rb") ## wb -write bytes
+BernoulliNB_classifier = pickle.load(load_classifier)
 print (" BernoulliNB Classifier accuracy percent:", (nltk.classify.accuracy(BernoulliNB_classifier,testing_set))*100)
 
 
 
-"""
-GaussianNB_classifier = SklearnClassifier(GaussianNB()) # making a new classifier
-GaussianNB_classifier.train(training_set)
-print (" GaussianNB Classifier accuracy percent:", (nltk.classify.accuracy(MNB_classifier,testing_set))*100)
-"""
-
-LogisticRegression_classifier = SklearnClassifier(LogisticRegression()) # making a new classifier
-LogisticRegression_classifier.train(training_set)
-print (" LogisticRegression Classifier accuracy percent:", (nltk.classify.accuracy(LogisticRegression_classifier,testing_set))*100)
 
 ## LOgistic Regression,SVC,LinearSVC,NuSVC and SGDClassifier
 
-SGDClassifier_classifier = SklearnClassifier(SGDClassifier()) # making a new classifier
-SGDClassifier_classifier.train(training_set)
+load_classifier = open("pickle/LogisticRegression.pickle","rb") ## wb -write bytes
+LogisticRegression_classifier = pickle.load(load_classifier)
+print (" LogisticRegression Classifier accuracy percent:", (nltk.classify.accuracy(LogisticRegression_classifier,testing_set))*100)
+
+
+load_classifier = open("pickle/SGDClassifier.pickle","rb") ## wb -write bytes
+SGDClassifier_classifier = pickle.load(load_classifier)
 print (" SGDClassifier Classifier accuracy percent:", (nltk.classify.accuracy(SGDClassifier_classifier,testing_set))*100)
 
 
-SVC_classifier = SklearnClassifier(SVC()) # making a new classifier
-SVC_classifier.train(training_set)
+load_classifier = open("pickle/SVC_classifier.pickle","rb") ## wb -write bytes
+SVC_classifier = pickle.load(load_classifier)
 print (" SVC Classifier accuracy percent:", (nltk.classify.accuracy(SVC_classifier,testing_set))*100)
 
 
-LinearSVC_classifier = SklearnClassifier(LinearSVC()) # making a new classifier
-LinearSVC_classifier.train(training_set)
+load_classifier = open("pickle/LinearSVC.pickle","rb") ## wb -write bytes
+LinearSVC_classifier = pickle.load(load_classifier)
 print (" LinearSVC Classifier accuracy percent:", (nltk.classify.accuracy(LinearSVC_classifier,testing_set))*100)
 
 
-NuSVC_classifier = SklearnClassifier(NuSVC()) # making a new classifier
-NuSVC_classifier.train(training_set)
+load_classifier = open("pickle/NuSVC_classifier.pickle","rb") ## wb -write bytes
+NuSVC_classifier = pickle.load(load_classifier)
 print (" NuSVC Classifier accuracy percent:", (nltk.classify.accuracy(NuSVC_classifier,testing_set))*100)
 
 ## Our confidence parameter
@@ -148,11 +135,10 @@ print (" NuSVC Classifier accuracy percent:", (nltk.classify.accuracy(NuSVC_clas
 # So we're making a classifier is a compilation of all the above classifiers
 # Our Classifier
 
-vote_classifier = VoteClassifier(classifier,
+vote_classifier = VoteClassifier(
                                 MNB_classifier,
                                 BernoulliNB_classifier,
                                 SVC_classifier,
-                                SGDClassifier_classifier,
                                 NuSVC_classifier,
                                 LinearSVC_classifier)
 print (" Voted Classifier accuracy percent:", (nltk.classify.accuracy(vote_classifier,testing_set))*100)
