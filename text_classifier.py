@@ -12,8 +12,40 @@ from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.svm import SVC, LinearSVC, NuSVC
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 
+from nltk.classify import ClassifierI # inherit from nltk classifier
+from statistics import mode # for our confidence score
+
+
+
+class VoteClassifier(ClassifierI):
+    def __init__(self,*classifiers):
+        self._classifiers = classifiers
+
+    def classify(self,features):
+        votes = []
+        for c in self._classifiers:
+            v = c.classify(features)
+            votes.append(v)
+        return mode(votes)
+
+    def confidence(self,features):
+        votes = []
+        for c in self._classifiers :
+            v = c.classify(features)
+            votes.append(v)
+
+        choice_votes = votes.count(mode(votes)) # how many occurences  of most popular vote were in the list
+        conf = float(choice_votes)/len(votes)
+        return conf
+
+
+
+
+
+
 
 # words are tuples which are also "features"
+
 
 documents = [(list(movie_reviews.words(fileid)),category)
             for category in  movie_reviews.categories()
@@ -74,6 +106,12 @@ print (" MultinomialNB Classifier accuracy percent:", (nltk.classify.accuracy(MN
 
 
 # Gausian and BernouslliNB
+BernoulliNB_classifier = SklearnClassifier(BernoulliNB()) # making a new classifier
+BernoulliNB_classifier.train(training_set)
+print (" BernoulliNB Classifier accuracy percent:", (nltk.classify.accuracy(BernoulliNB_classifier,testing_set))*100)
+
+
+
 """
 GaussianNB_classifier = SklearnClassifier(GaussianNB()) # making a new classifier
 GaussianNB_classifier.train(training_set)
@@ -104,3 +142,23 @@ print (" LinearSVC Classifier accuracy percent:", (nltk.classify.accuracy(Linear
 NuSVC_classifier = SklearnClassifier(NuSVC()) # making a new classifier
 NuSVC_classifier.train(training_set)
 print (" NuSVC Classifier accuracy percent:", (nltk.classify.accuracy(NuSVC_classifier,testing_set))*100)
+
+## Our confidence parameter
+# if 3 out of 7 are -ve then our confidence is a little lower
+# So we're making a classifier is a compilation of all the above classifiers
+# Our Classifier
+
+vote_classifier = VoteClassifier(classifier,
+                                MNB_classifier,
+                                BernoulliNB_classifier,
+                                SVC_classifier,
+                                SGDClassifier_classifier,
+                                NuSVC_classifier,
+                                LinearSVC_classifier)
+print (" Voted Classifier accuracy percent:", (nltk.classify.accuracy(vote_classifier,testing_set))*100)
+
+print("Classification: ", vote_classifier.classify(testing_set[0][0]),"Confidence:",vote_classifier.confidence(testing_set[0][0])*100)
+print("Classification: ", vote_classifier.classify(testing_set[1][0]),"Confidence:",vote_classifier.confidence(testing_set[1][0])*100)
+print("Classification: ", vote_classifier.classify(testing_set[2][0]),"Confidence:",vote_classifier.confidence(testing_set[2][0])*100)
+print("Classification: ", vote_classifier.classify(testing_set[3][0]),"Confidence:",vote_classifier.confidence(testing_set[3][0])*100)
+print("Classification: ", vote_classifier.classify(testing_set[4][0]),"Confidence:",vote_classifier.confidence(testing_set[4][0])*100)
