@@ -36,9 +36,11 @@ class Rank_Object:
 
 class Frag_Object:
     index = -1;
+    serial = -1
     text ="";
-    def __init__(self,index):
+    def __init__(self,index,serial):
         self.index = index;
+        self.serial = serial
 
 """ This removes all the sentence elements apart from that inside quotes ans stores it into a seperate fragment.If there
     are no quotes in the sentence we leave the sentence alone
@@ -153,6 +155,16 @@ def generate_sentence_list(fragment_features,no_of_frags):
     ranklist.sort(key = operator.attrgetter('score'),reverse=True);
     return ranklist
 
+def generate_score(wordTokens1,wordTokens2,n):
+    idf_Ti=0.000000000000001
+    idf_Tj=0.000000000000001
+    idf_comm=0.0
+    for i in wordTokens1:
+        idf1= math.log(n/float(1+n_containing(i,li)))
+        idf_Ti+=idf1
+        if i in wordTokens2:
+            idf_comm+=idf1
+
 def remove_redundant_sentences(ranklist,sim_matrix):
     finallist = [];
     finallist.append(ranklist[0]);
@@ -227,6 +239,7 @@ def extractSentences(text,folder):
         no_of_frags[i.index] += 1;
         li.append(i.text);
 
+
     sim_matrix =np.zeros(shape=(m,m))
     for i in range(m):
         for j in range(m):
@@ -237,10 +250,18 @@ def extractSentences(text,folder):
         for j in range(m):
             d[i][j]=0
     x=0;y=0;
+    dic = {}
     for first in sentences:
         wordTokens1=nltk.word_tokenize(first)
         for second in frags:
-            wordTokens2=nltk.word_tokenize(second.text)
+
+            if second.serial in dic:
+                 wordTokens2 = dic[second.serial]
+            else:
+                 wordTokens2=nltk.word_tokenize(second.text)
+                 dic[second.serial] = wordTokens2
+
+
             idf_Ti=0.000000000000001
             idf_Tj=0.000000000000001
             idf_comm=0.0
@@ -251,6 +272,7 @@ def extractSentences(text,folder):
                     idf_comm+=idf1
             #Assigning values and calculte max,min
             d[y][x]=idf_comm/float(idf_Ti)
+
             if(second.index != x):
                 if(no_of_frags[second.index] != 0):
                     sim_matrix[second.index][x] += d[y][x]/(no_of_frags[second.index])
@@ -302,6 +324,9 @@ text = ""
 folders=os.listdir("Orig")
 if not os.path.exists("TE"):
 	os.mkdir("TE")
+
+k=0
+
 for folder in folders:
     if not os.path.exists("Sum/"+folder):
 	    os.mkdir("Sum/"+folder)
@@ -396,9 +421,10 @@ for folder in folders:
         li =[]
         li = new.split('***');
         for i in li:
-            obj = Frag_Object(j);
+            obj = Frag_Object(j,k);
             obj.text = i;
             NFrags.append(obj);
+            k = k + 1
 
         j += 1
 
