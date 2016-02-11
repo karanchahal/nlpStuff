@@ -1,0 +1,53 @@
+<ROUGE_EVAL version="1.5.5">
+<EVAL ID="61">
+<PEER-ROOT>
+./Sum_Html/d30003t
+</PEER-ROOT>
+<MODEL-ROOT>
+./summaries
+</MODEL-ROOT>
+<INPUT-FORMAT TYPE="SEE">
+</INPUT-FORMAT>
+<PEERS>
+<P ID="1">summary.htm</P>
+</PEERS>
+<MODELS>
+<M ID="A">d300a/200.htm</M>
+<M ID="B">d300b/200.htm</M>
+</MODELS>
+</EVAL>
+<EVAL ID="62">
+<PEER-ROOT>
+./Sum_Html/d31038t
+</PEER-ROOT>
+<MODEL-ROOT>
+./summaries
+</MODEL-ROOT>
+<INPUT-FORMAT TYPE="SEE">
+</INPUT-FORMAT>
+<PEERS>
+<P ID="1">summary.htm</P>
+</PEERS>
+<MODELS>
+<M ID="A">d310a/200.htm</M>
+<M ID="B">d310b/200.htm</M>
+</MODELS>
+</EVAL>
+<EVAL ID="63">
+<PEER-ROOT>
+./Sum_Html/d31041t
+</PEER-ROOT>
+<MODEL-ROOT>
+./summaries
+</MODEL-ROOT>
+<INPUT-FORMAT TYPE="SEE">
+</INPUT-FORMAT>
+<PEERS>
+<P ID="1">summary.htm</P>
+</PEERS>
+<MODELS>
+<M ID="A">d310a/200.htm</M>
+<M ID="B">d310b/200.htm</M>
+</MODELS>
+</EVAL>
+</ROUGE_EVAL>
