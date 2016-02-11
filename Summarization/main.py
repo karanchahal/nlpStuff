@@ -325,9 +325,10 @@ folders=os.listdir("Orig")
 if not os.path.exists("TE"):
 	os.mkdir("TE")
 
-k=0
-
 for folder in folders:
+
+    k=0
+
     if not os.path.exists("Sum/"+folder):
 	    os.mkdir("Sum/"+folder)
     frags=[]
